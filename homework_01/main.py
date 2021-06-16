@@ -2,7 +2,6 @@
 Домашнее задание №1
 Функции и структуры данных
 """
-import math
 
 
 def power_numbers(*number):
