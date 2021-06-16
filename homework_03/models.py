@@ -19,34 +19,34 @@ from sqlalchemy import (
     create_engine,
     ForeignKey,
 )
+from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
 
-engine = create_engine("sqlite:///example-01.db", echo=True)
+SQLALCHEMY_CONN_URI = "postgresql+asyncpg://user:password@localhost/project"
 
-PG_CONN_URI = os.environ.get("PG_CONN_URI") or "postgresql://postgres:password@localhost/postgres"
+engine = create_async_engine(SQLALCHEMY_CONN_URI, echo=True)
 
-Base = declarative_base(bind=engine)
+Base = declarative_base()
+
 Session = sessionmaker(bind=engine)
 
 
 class User(Base):
     __tablename__ = "users"
 
+    id = Column(Integer, primary_key=True)
     name = Column(String(32), unique=True)
     username = Column(String(32), unique=True)
     email = Column(String(32), unique=True)
-
     posts = relationship("Post", back_populates="user")
 
 
 class Post(Base):
     __tablename__ = "posts"
 
-    user_id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True)
     title = Column(String(64), nullable=False, default="", server_default="")
-    body = Column(String(32), unique=True)
-
     user_id = Column(Integer, ForeignKey(User.id), nullable=False)
-
+    body = Column(String(32), unique=True)
     user = relationship(User, back_populates="posts")
